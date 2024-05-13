@@ -1,33 +1,35 @@
 <html>
+  <head>
+    <link href="./bootstrap.min.css" rel="stylesheet" />
+    <script src="./bootstrap.bundle.min.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@100;400;500;600;800&display=swap");
+    </style>
+    <link rel="stylesheet" href="./app-content-style.css" />
+  </head>
 
-<head>
-	<link href="./bootstrap.min.css" rel="stylesheet" />
-	<script src="./bootstrap.bundle.min.js"></script>
-	<style>
-		@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@100;400;500;600;800&display=swap');
-	</style>
-	<link rel="stylesheet" href="./app-content-style.css">
-</head>
+  <body class="alert-primary p-2">
+    <div>
+      <div class="tab-content container-fluid" id="tab-content-container">
+        <div class="commands">
+          <span>
+            <!-- <button id="save-button">Save</button> -->
+            <!-- <button id="summarize-button">Summarize</button> -->
+            <!-- <button id="close-button">Close</button> -->
+          </span>
+        </div>
+        <div id="notepad-app-container">
+          <div
+            id="notepad-content"
+            contenteditable="true"
+            placeholder="Start writing notes..."
+          ></div>
+          <div id="notepad-meta"></div>
+        </div>
+      </div>
+    </div>
+  </body>
 
-<body class="hover-container">
-	<div>
-		<div class="tab-content container-fluid" id="tab-content-container">
-			<div class="commands">
-				<span>
-					<!-- <button id="save-button">Save</button> -->
-					<!-- <button id="summarize-button">Summarize</button> -->
-					<!-- <button id="close-button">Close</button> -->
-				</span>
-			</div>
-			<div id="notepad-app-container">
-				<div id="notepad-content" contenteditable="true" placeholder="Start writing notes..."></div>
-				<div id="notepad-meta">
-				</div>
-			</div>
-		</div>
-	</div>
-</body>
-
-<script type="text/javascript" src="./apps/notes/notes.js"></script>
-<script type="text/javascript" src="./notepad-utilities.js"></script>
+  <script type="text/javascript" src="./apps/notes/notes.js"></script>
+  <script type="text/javascript" src="./notepad-utilities.js"></script>
 </html>

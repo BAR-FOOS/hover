@@ -5,6 +5,8 @@ body {
 	font-family: 'Libre Franklin', sans-serif;
 	color: #696969;
 	font-weight: 600;
+	width: 500px;
+	height: fit-content;
 }
 
 .nav-tabs {
@@ -21,7 +23,8 @@ body {
 }
 
 #notepad-app-container{
-	height:100vh;
+	height:80vh;
+	/* width: 200vw; */
 }
 
 #notepad-content {
