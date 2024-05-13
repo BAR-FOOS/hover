@@ -231,16 +231,3 @@ function performMark() {
   });
   alert("marked");
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-  const url = window.location.href; // Ensure this is the right URL context
-  chrome.storage.local.get([url], function (result) {
-    if (result[url]) {
-      const notepad = document.getElementById("notepad-content");
-      if (notepad) {
-        notepad.textContent = result[url];
-        console.log("Loaded content for URL:", url);
-      }
-    }
-  });
-});
