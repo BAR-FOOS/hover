@@ -195,6 +195,7 @@ function getSelectionText() {
     text = document.selection.createRange().text;
   }
   console.log("Text:" + text);
+
   return text;
 }
 
@@ -207,6 +208,8 @@ function fadeIn(element, delay, increment) {
     element.style.opacity = op;
     op += increment;
   }, delay);
+
+  alert("fade in");
 }
 
 function performMark() {
@@ -226,6 +229,7 @@ function performMark() {
       markInstance.mark(keyword, options);
     },
   });
+  alert("marked");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -239,17 +243,4 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
   });
-});
-
-//on dom loaded, load the notepad content from the cache by the url
-document.addEventListener("DOMContentLoaded", function () {
-  const notepad = document.getElementById("notepad-content");
-  if (notepad) {
-    url = window.location.href;
-
-    chrome.storage.local.get([url], function (result) {
-      notepad.textContent = result[url];
-    });
-    alert(url, "notepad-content", notepad.textContent);
-  }
 });
