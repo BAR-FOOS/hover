@@ -5,7 +5,7 @@ body {
 	font-family: 'Libre Franklin', sans-serif;
 	color: #696969;
 	font-weight: 600;
-	width: 500px;
+	width: 600px;
 	height: fit-content;
 }
 
@@ -23,7 +23,7 @@ body {
 }
 
 #notepad-app-container{
-	height:80vh;
+	height:90vh;
 	/* width: 200vw; */
 }
 

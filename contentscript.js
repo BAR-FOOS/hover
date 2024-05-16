@@ -1,76 +1,77 @@
-// Add App Frame to the Page
-addFrame();
-
-// Make App Frame Resizable and Draggable
-interact("#app-container")
-  .resizable({
-    // resize from all edges and corners
-    edges: { left: false, right: true, bottom: true, top: false },
-    listeners: {
-      move(event) {
-        var target = event.target;
-        var x = parseFloat(target.getAttribute("data-x")) || 0;
-        var y = parseFloat(target.getAttribute("data-y")) || 0;
-
-        // HIDDEN DIV SOLUTION BASED ON THIS: https://github.com/taye/interact.js/issues/200
-        // let hiddenDiv = document.createElement("div")
-        // hiddenDiv.setAttribute("z-index",99999999)
-        // hiddenDiv.style.width = "100%"
-        // hiddenDiv.style.height = "100%"
-        // hiddenDiv.style.opacity = "0"
-        // target.appendChild(hiddenDiv)
-
-        console.log("Resizing!");
-
-        // update the element's style
-        target.style.width = event.rect.width + "px";
-        target.style.height = event.rect.height + "px";
-
-        // translate when resizing from top or left edges
-        x += event.deltaRect.left;
-        y += event.deltaRect.top;
-
-        target.style.transform = "translate(" + x + "px," + y + "px)";
-
-        target.setAttribute("data-x", x);
-        target.setAttribute("data-y", y);
-
-        // target.removeChild(hiddenDiv)
-        //target.textContent = Math.round(event.rect.width) + '\u00D7' + Math.round(event.rect.height)
-      },
-    },
-    modifiers: [
-      // keep the edges inside the parent
-      interact.modifiers.restrictEdges({
-        outer: "parent",
-      }),
-
-      // minimum size
-      interact.modifiers.restrictSize({
-        min: { width: 100, height: 50 },
-      }),
-    ],
-
-    inertia: true,
-  })
-  .draggable({
-    listeners: { move: window.dragMoveListener },
-    inertia: true,
-    modifiers: [
-      interact.modifiers.restrictRect({
-        restriction: "parent",
-        endOnly: true,
-      }),
-    ],
+function loadScript(url) {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = url;
+    script.onload = () => resolve(script);
+    script.onerror = () => reject(new Error(`Failed to load script: ${url}`));
+    document.head.appendChild(script);
   });
+}
+
+// Load interact.js and then initialize the frame and interact.js features
+loadScript(chrome.runtime.getURL("interact.min.js"))
+  .then(() => {
+    // Add App Frame to the Page
+    addFrame();
+
+    // Make App Frame Resizable and Draggable
+    interact("#app-container")
+      .resizable({
+        // resize from all edges and corners
+        edges: { left: false, right: true, bottom: true, top: false },
+        listeners: {
+          move(event) {
+            var target = event.target;
+            var x = parseFloat(target.getAttribute("data-x")) || 0;
+            var y = parseFloat(target.getAttribute("data-y")) || 0;
+
+            console.log("Resizing!");
+
+            // update the element's style
+            target.style.width = event.rect.width + "px";
+            target.style.height = event.rect.height + "px";
+
+            // translate when resizing from top or left edges
+            x += event.deltaRect.left;
+            y += event.deltaRect.top;
+
+            target.style.transform = "translate(" + x + "px," + y + "px)";
+
+            target.setAttribute("data-x", x);
+            target.setAttribute("data-y", y);
+          },
+        },
+        modifiers: [
+          // keep the edges inside the parent
+          interact.modifiers.restrictEdges({
+            outer: "parent",
+          }),
+
+          // minimum size
+          interact.modifiers.restrictSize({
+            min: { width: 100, height: 50 },
+          }),
+        ],
+
+        inertia: true,
+      })
+      .draggable({
+        listeners: { move: window.dragMoveListener },
+        inertia: true,
+        modifiers: [
+          interact.modifiers.restrictRect({
+            restriction: "parent",
+            endOnly: true,
+          }),
+        ],
+      });
+  })
+  .catch((error) => console.error(error));
 
 // Reset Selection End Timeout
 var selectionEndTimeout = null;
 
 var markInstance = new Mark(document.querySelector("body"));
-// var notepadIframe = document.getElementById("app-frame");
-// console.log("IFrameHTML:"+notepadIframe.outerHTML);
-// var typedInput = notepadIframe.contentWindow.document.getElementById("notepad-content");
 
 /*
 --------------
@@ -126,7 +127,8 @@ function addFrame() {
   appContainerDiv.id = "app-container";
   appContainerDiv.className += "resize-drag";
 
-  appContainerStyleLink.href = chrome.extension.getURL("app-frame-style.css");
+  // get the css file from the extension
+  appContainerStyleLink.href = chrome.runtime.getURL("app-frame-style.css");
   appContainerStyleLink.type = "text/css";
   appContainerStyleLink.rel = "stylesheet";
 
