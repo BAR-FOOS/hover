@@ -73,3 +73,7 @@ textarea#notepad-content {
   resize: none;
 }
 
+.minimized {
+  width: 300px !important;
+  height: 50px !important;
+}

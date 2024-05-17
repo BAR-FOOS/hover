@@ -34,6 +34,7 @@
       "resources": [
         "app-frame.html",
         "app-frame-style.css",
+        "app-frame-script.js",
         "/apps/*",
         "interact.min.js",
         "mark.min.js"

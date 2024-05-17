@@ -13,65 +13,13 @@ loadScript(chrome.runtime.getURL("interact.min.js"))
   .then(() => {
     // Add App Frame to the Page
     addFrame();
-
-    // Make App Frame Resizable and Draggable
-    interact("#app-container")
-      .resizable({
-        // resize from all edges and corners
-        edges: { left: false, right: true, bottom: true, top: false },
-        listeners: {
-          move(event) {
-            var target = event.target;
-            var x = parseFloat(target.getAttribute("data-x")) || 0;
-            var y = parseFloat(target.getAttribute("data-y")) || 0;
-
-            console.log("Resizing!");
-
-            // update the element's style
-            target.style.width = event.rect.width + "px";
-            target.style.height = event.rect.height + "px";
-
-            // translate when resizing from top or left edges
-            x += event.deltaRect.left;
-            y += event.deltaRect.top;
-
-            target.style.transform = "translate(" + x + "px," + y + "px)";
-
-            target.setAttribute("data-x", x);
-            target.setAttribute("data-y", y);
-          },
-        },
-        modifiers: [
-          // keep the edges inside the parent
-          interact.modifiers.restrictEdges({
-            outer: "parent",
-          }),
-
-          // minimum size
-          interact.modifiers.restrictSize({
-            min: { width: 100, height: 50 },
-          }),
-        ],
-
-        inertia: true,
-      })
-      .draggable({
-        listeners: { move: window.dragMoveListener },
-        inertia: true,
-        modifiers: [
-          interact.modifiers.restrictRect({
-            restriction: "parent",
-            endOnly: true,
-          }),
-        ],
-      });
   })
   .catch((error) => console.error(error));
 
 // Reset Selection End Timeout
 var selectionEndTimeout = null;
 
-var markInstance = new Mark(document.querySelector("body"));
+// var markInstance = new Mark(document.querySelector("body"));
 
 /*
 --------------
@@ -121,22 +69,71 @@ function addFrame() {
 
   var appContainerDiv = parentDocument.createElement("div");
   var appIframe = parentDocument.createElement("iframe");
+
   var appContainerStyleLink = parentDocument.createElement("link");
   var appContainerScript = parentDocument.createElement("script");
 
   appContainerDiv.id = "app-container";
   appContainerDiv.className += "resize-drag";
+  appContainerDiv.style.position = "fixed";
+  appContainerDiv.style.top = "20px";
+  appContainerDiv.style.left = "20px";
+  appContainerDiv.style.zIndex = "9999";
+  appContainerDiv.style.backgroundColor = "white";
+  appContainerDiv.style.border = "1px solid #ccc";
+  appContainerDiv.style.borderRadius = "4px";
+  appContainerDiv.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.1)";
+  appContainerDiv.style.width = "300px"; // Set a default width
+  appContainerDiv.style.height = "400px"; // Set a default height
 
   // get the css file from the extension
   appContainerStyleLink.href = chrome.runtime.getURL("app-frame-style.css");
   appContainerStyleLink.type = "text/css";
   appContainerStyleLink.rel = "stylesheet";
-
   appIframe.id = "app-frame";
   appIframe.src = chrome.runtime.getURL("app-frame.html");
 
   appIframe.allowTransparency = "true";
 
+  // Create buttons
+  var buttonContainer = document.createElement("div");
+  buttonContainer.style.display = "flex";
+  buttonContainer.style.justifyContent = "space-between";
+  buttonContainer.style.padding = "5px";
+  buttonContainer.style.backgroundColor = "#f0f0f0";
+  buttonContainer.style.borderBottom = "1px solid #ccc";
+
+  var deleteButton = document.createElement("button");
+  deleteButton.id = "delete-button";
+  deleteButton.textContent = "#";
+  deleteButton.style =
+    "background-color: #007bff; border: none; color: white; padding: 5px 10px; font-size: 14px; cursor: pointer; border-radius: 4px;";
+
+  var minimizeButton = document.createElement("button");
+  minimizeButton.id = "minimize-button";
+  minimizeButton.textContent = "-";
+  minimizeButton.style =
+    "background-color: #007bff; border: none; color: white; padding: 5px 10px; font-size: 14px; cursor: pointer; border-radius: 4px;";
+
+  var closeButton = document.createElement("button");
+  closeButton.id = "close-button";
+  closeButton.textContent = "X";
+  closeButton.style =
+    "background-color: #007bff; border: none; color: white; padding: 5px 10px; font-size: 14px; cursor: pointer; border-radius: 4px;";
+
+  var transparencyButton = document.createElement("button");
+  transparencyButton.id = "transparency-button";
+  transparencyButton.textContent = "T";
+  transparencyButton.style =
+    "background-color: #007bff; border: none; color: white; padding: 5px 10px; font-size: 14px; cursor: pointer; border-radius: 4px;";
+
+  buttonContainer.appendChild(deleteButton);
+  buttonContainer.appendChild(minimizeButton);
+  buttonContainer.appendChild(closeButton);
+  buttonContainer.appendChild(transparencyButton);
+
+  // Append elements to the container
+  appContainerDiv.appendChild(buttonContainer);
   appContainerDiv.appendChild(appIframe);
   document.getElementsByTagName("head")[0].appendChild(appContainerStyleLink);
   parentDocument.body.insertBefore(
@@ -148,17 +145,52 @@ function addFrame() {
     parentDocument.body.firstChild
   );
 
+  // Add event listeners
+  deleteButton.addEventListener("click", function () {
+    notepadContent.innerHTML = "";
+  });
+
+  minimizeButton.addEventListener("click", function () {
+    toggleVisibility(appContainerDiv);
+  });
+
+  closeButton.addEventListener("click", function () {
+    appContainerDiv.style.display = "none";
+  });
+
+  transparencyButton.addEventListener("click", function () {
+    if (appContainerDiv.style.opacity == "0.5") {
+      appContainerDiv.style.opacity = "1";
+    } else {
+      appContainerDiv.style.opacity = "0.5";
+    }
+  });
+
   fadeIn(appContainerDiv, 20, 0.075);
 }
 
 function toggleVisibility(obj) {
-  if (obj.style.visibility == "visible") {
-    //obj.style.visibility = 'hidden';
-    //fadeOut(obj);
+  if (obj.classList.contains("minimized")) {
+    obj.classList.remove("minimized");
   } else {
-    fadeIn(obj);
+    obj.classList.add("minimized");
   }
-  //       obj.style.visibility = 'visible';
+}
+
+function dragMoveListener(event) {
+  console.log("Drag Move Event Fired");
+  var target = event.target;
+  // keep the dragged position in the data-x/data-y attributes
+  var x = (parseFloat(target.getAttribute("data-x")) || 0) + event.dx;
+  var y = (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
+
+  // translate the element
+  target.style.webkitTransform = target.style.transform =
+    "translate(" + x + "px, " + y + "px)";
+
+  // update the posiion attributes
+  target.setAttribute("data-x", x);
+  target.setAttribute("data-y", y);
 }
 
 function dragMoveListener(event) {
@@ -210,8 +242,6 @@ function fadeIn(element, delay, increment) {
     element.style.opacity = op;
     op += increment;
   }, delay);
-
-  alert("fade in");
 }
 
 function performMark() {
