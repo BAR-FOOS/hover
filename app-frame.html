@@ -47,6 +47,23 @@
         min-height: 200px;
         border-bottom: 1px solid #ccc;
       }
+
+      /* Sticky button style */
+      #open-full-note {
+        position: sticky;
+        bottom: 0;
+        width: 100%;
+        background-color: #007bff;
+        color: white;
+        text-align: center;
+        padding: 10px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+
+      #open-full-note:hover {
+        background-color: #0056b3;
+      }
     </style>
     <link rel="stylesheet" href="./app-content-style.css" />
   </head>
@@ -55,7 +72,7 @@
     <div>
       <div class="tab-content container-fluid" id="tab-content-container">
         <div class="commands">
-          <span> </span>
+          <span></span>
         </div>
         <div id="notepad-app-container">
           <div
@@ -64,6 +81,7 @@
             placeholder="Start writing notes..."
           ></div>
           <div id="notepad-meta"></div>
+          <div id="open-full-note">Open Full Note</div>
         </div>
       </div>
     </div>
