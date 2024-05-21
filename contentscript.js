@@ -96,8 +96,8 @@ function addFrame() {
   appContainerDiv.style.border = "1px solid #ccc";
   appContainerDiv.style.borderRadius = "4px";
   appContainerDiv.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.1)";
-  appContainerDiv.style.width = "300px"; // Set a default width
-  appContainerDiv.style.height = "400px"; // Set a default height
+  appContainerDiv.style.width = "500px"; // Set a default width
+  appContainerDiv.style.height = "500px"; // Set a default height
 
   // Get the CSS file from the extension
   appContainerStyleLink.href = chrome.runtime.getURL("app-frame-style.css");
@@ -259,46 +259,11 @@ function fadeIn(element, delay, increment) {
 }
 
 function toggleVisibility(obj) {
-  if (obj.style.display === "none") {
-    obj.style.display = "block";
-  } else {
-    obj.style.display = "none";
-  }
-}
-
-function fadeIn(element, delay, increment) {
-  var op = 0; // initial opacity
-  var timer = setInterval(function () {
-    if (op >= 1) {
-      clearInterval(timer);
-    }
-    element.style.opacity = op;
-    op += increment;
-  }, delay);
-}
-
-function toggleVisibility(obj) {
   if (obj.classList.contains("minimized")) {
     obj.classList.remove("minimized");
   } else {
     obj.classList.add("minimized");
   }
-}
-
-function dragMoveListener(event) {
-  console.log("Drag Move Event Fired");
-  var target = event.target;
-  // keep the dragged position in the data-x/data-y attributes
-  var x = (parseFloat(target.getAttribute("data-x")) || 0) + event.dx;
-  var y = (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
-
-  // translate the element
-  target.style.webkitTransform = target.style.transform =
-    "translate(" + x + "px, " + y + "px)";
-
-  // update the posiion attributes
-  target.setAttribute("data-x", x);
-  target.setAttribute("data-y", y);
 }
 
 function dragMoveListener(event) {
@@ -339,17 +304,6 @@ function getSelectionText() {
   console.log("Text:" + text);
 
   return text;
-}
-
-function fadeIn(element, delay, increment) {
-  var op = 0; // initial opacity
-  var timer = setInterval(function () {
-    if (op >= 1) {
-      clearInterval(timer);
-    }
-    element.style.opacity = op;
-    op += increment;
-  }, delay);
 }
 
 function performMark() {

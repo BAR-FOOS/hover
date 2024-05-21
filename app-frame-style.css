@@ -31,6 +31,7 @@
 
 #notepad-content {
   overflow: scroll;
+  margin-bottom: 10px;
 }
 
 .show {
@@ -43,6 +44,15 @@
  opacity: 0;
   transition: opacity 1000ms;
 }
+
+
+.pop-body{ 
+    height: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Libre Franklin', sans-serif;
+}
+
 
 
 #notepad-container {
