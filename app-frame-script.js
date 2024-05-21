@@ -3,5 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .getElementById("open-full-note")
     .addEventListener("click", function () {
       chrome.runtime.sendMessage({ action: "open-full-note" });
+      //close popup
+      window.close();
     });
 });

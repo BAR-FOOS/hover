@@ -44,12 +44,6 @@
   transition: opacity 1000ms;
 }
 
-body, html {
-  height: 100%;
-  margin: 0;
-  overflow: hidden;
-  font-family: 'Libre Franklin', sans-serif;
-}
 
 #notepad-container {
   position: absolute;

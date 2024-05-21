@@ -77,18 +77,17 @@ document.addEventListener("selectionEnd", function () {
 FUNCTIONS
 --------------
 */
-
 function addFrame() {
   let parentDocument = document;
 
+  // Create container for iframe
   var appContainerDiv = parentDocument.createElement("div");
   var appIframe = parentDocument.createElement("iframe");
 
   var appContainerStyleLink = parentDocument.createElement("link");
-  var appContainerScript = parentDocument.createElement("script");
 
   appContainerDiv.id = "app-container";
-  appContainerDiv.className += "resize-drag";
+  appContainerDiv.className = "resize-drag";
   appContainerDiv.style.position = "fixed";
   appContainerDiv.style.top = "20px";
   appContainerDiv.style.left = "20px";
@@ -100,48 +99,49 @@ function addFrame() {
   appContainerDiv.style.width = "300px"; // Set a default width
   appContainerDiv.style.height = "400px"; // Set a default height
 
-  // get the css file from the extension
+  // Get the CSS file from the extension
   appContainerStyleLink.href = chrome.runtime.getURL("app-frame-style.css");
   appContainerStyleLink.type = "text/css";
   appContainerStyleLink.rel = "stylesheet";
+
   appIframe.id = "app-frame";
   appIframe.src = chrome.runtime.getURL("app-frame.html");
-
   appIframe.allowTransparency = "true";
-
   appIframe.style.width = "100%";
   appIframe.style.height = "100%";
   appIframe.style.border = "none";
+  appIframe.style.pointerEvents = "auto"; // Ensure iframe does not block interactions
+
   // Create buttons
-  var buttonContainer = document.createElement("div");
+  var buttonContainer = parentDocument.createElement("div");
   buttonContainer.style.display = "flex";
   buttonContainer.style.justifyContent = "space-between";
   buttonContainer.style.padding = "5px";
   buttonContainer.style.backgroundColor = "#f0f0f0";
   buttonContainer.style.borderBottom = "1px solid #ccc";
 
-  var deleteButton = document.createElement("button");
+  var deleteButton = parentDocument.createElement("button");
   deleteButton.id = "delete-button";
   deleteButton.textContent = "#";
-  deleteButton.style =
+  deleteButton.style.cssText =
     "background-color: #007bff; border: none; color: white; padding: 5px 10px; font-size: 14px; cursor: pointer; border-radius: 4px;";
 
-  var minimizeButton = document.createElement("button");
+  var minimizeButton = parentDocument.createElement("button");
   minimizeButton.id = "minimize-button";
   minimizeButton.textContent = "-";
-  minimizeButton.style =
+  minimizeButton.style.cssText =
     "background-color: #007bff; border: none; color: white; padding: 5px 10px; font-size: 14px; cursor: pointer; border-radius: 4px;";
 
-  var closeButton = document.createElement("button");
+  var closeButton = parentDocument.createElement("button");
   closeButton.id = "close-button";
   closeButton.textContent = "X";
-  closeButton.style =
+  closeButton.style.cssText =
     "background-color: #007bff; border: none; color: white; padding: 5px 10px; font-size: 14px; cursor: pointer; border-radius: 4px;";
 
-  var transparencyButton = document.createElement("button");
+  var transparencyButton = parentDocument.createElement("button");
   transparencyButton.id = "transparency-button";
   transparencyButton.textContent = "T";
-  transparencyButton.style =
+  transparencyButton.style.cssText =
     "background-color: #007bff; border: none; color: white; padding: 5px 10px; font-size: 14px; cursor: pointer; border-radius: 4px;";
 
   buttonContainer.appendChild(deleteButton);
@@ -152,19 +152,21 @@ function addFrame() {
   // Append elements to the container
   appContainerDiv.appendChild(buttonContainer);
   appContainerDiv.appendChild(appIframe);
-  document.getElementsByTagName("head")[0].appendChild(appContainerStyleLink);
+  parentDocument
+    .getElementsByTagName("head")[0]
+    .appendChild(appContainerStyleLink);
   parentDocument.body.insertBefore(
     appContainerDiv,
-    parentDocument.body.firstChild
-  );
-  parentDocument.body.insertBefore(
-    appContainerScript,
     parentDocument.body.firstChild
   );
 
   // Add event listeners
   deleteButton.addEventListener("click", function () {
-    notepadContent.innerHTML = "";
+    var notepadContent =
+      appIframe.contentWindow.document.getElementById("notepad-content");
+    if (notepadContent) {
+      notepadContent.innerHTML = "";
+    }
   });
 
   minimizeButton.addEventListener("click", function () {
@@ -172,19 +174,107 @@ function addFrame() {
   });
 
   closeButton.addEventListener("click", function () {
-    // appContainerDiv.style.display = "none";
     appContainerDiv.remove();
   });
 
   transparencyButton.addEventListener("click", function () {
-    if (appContainerDiv.style.opacity == "0.5") {
-      appContainerDiv.style.opacity = "1";
-    } else {
-      appContainerDiv.style.opacity = "0.5";
-    }
+    appContainerDiv.style.opacity =
+      appContainerDiv.style.opacity === "0.5" ? "1" : "0.5";
   });
 
   fadeIn(appContainerDiv, 20, 0.075);
+
+  // Initialize interact.js for draggable and resizable functionality
+  interact(appContainerDiv)
+    .draggable({
+      listeners: {
+        move(event) {
+          const target = event.target;
+          const x = (parseFloat(target.getAttribute("data-x")) || 0) + event.dx;
+          const y = (parseFloat(target.getAttribute("data-y")) || 0) + event.dy;
+
+          target.style.transform = `translate(${x}px, ${y}px)`;
+
+          target.setAttribute("data-x", x);
+          target.setAttribute("data-y", y);
+        },
+      },
+      inertia: true,
+      modifiers: [
+        interact.modifiers.restrictRect({
+          restriction: "parent",
+          endOnly: true,
+        }),
+      ],
+    })
+    .resizable({
+      edges: { left: false, right: true, bottom: true, top: false },
+      listeners: {
+        move(event) {
+          let target = event.target;
+          let x = parseFloat(target.getAttribute("data-x")) || 0;
+          let y = parseFloat(target.getAttribute("data-y")) || 0;
+
+          target.style.width = `${event.rect.width}px`;
+          target.style.height = `${event.rect.height}px`;
+
+          x += event.deltaRect.left;
+          y += event.deltaRect.top;
+
+          target.style.transform = `translate(${x}px, ${y}px)`;
+
+          target.setAttribute("data-x", x);
+          target.setAttribute("data-y", y);
+        },
+      },
+      modifiers: [
+        interact.modifiers.restrictEdges({
+          outer: "parent",
+        }),
+        interact.modifiers.restrictSize({
+          min: { width: 100, height: 50 },
+        }),
+      ],
+      inertia: true,
+    });
+}
+
+function toggleVisibility(obj) {
+  if (obj.style.display === "none") {
+    obj.style.display = "block";
+  } else {
+    obj.style.display = "none";
+  }
+}
+
+function fadeIn(element, delay, increment) {
+  var op = 0; // initial opacity
+  var timer = setInterval(function () {
+    if (op >= 1) {
+      clearInterval(timer);
+    }
+    element.style.opacity = op;
+    op += increment;
+  }, delay);
+}
+
+function toggleVisibility(obj) {
+  if (obj.style.display === "none") {
+    obj.style.display = "block";
+  } else {
+    obj.style.display = "none";
+  }
+}
+
+function fadeIn(element, delay, increment) {
+  var op = 0; // initial opacity
+  var timer = setInterval(function () {
+    if (op >= 1) {
+      clearInterval(timer);
+    }
+    element.style.opacity = op;
+    op += increment;
+  }, delay);
 }
 
 function toggleVisibility(obj) {
